@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GPX Data Viewer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GPX Data Viewer">
+    <meta name="keywords" content="GPX Data Viewer">
+    <meta name="author" content="Arjun Nair">
+    <!-- Load jquery, bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <!-- Custom CSS End -->
+</head>
+<body>
+    <hr>
+    <h1>GPX Data Viewer</h1>
+    <hr>
+    <div id="fileLogPanel" class="table-responsive">
+        <h4 class="sectionHeaders">GPX File Log</h4>
+        <div class="verticalScroll">
+            <iframe id="nuffink" hidden></iframe>
+            <table id="fileTable" class="table table-bordered">
+                <tr>
+                    <td><i>No files</i></td>
+                </tr>
+                <tr>
+                    <td colspan="6" id="uploadCell">
+                        <form ref='uploadFileForm'
+                            id='uploadFileForm'
+                            action='/upload'
+                            method='post'
+                            encType="multipart/form-data">
+                            <div class="form-group">
+                                <input type="file" id="fileName" name="uploadFile" class="btn btn-outline-dark" required>
+                                <input id="uploadFile" type="submit" value="Upload file" class="btn btn-outline-dark">
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <hr>
+    <div id="gpxViewPanel" class="table-responsive">
+        <h4 class="sectionHeaders">GPX File Overview</h4>
+        <div class="form-group selectFile">
+            <label>Choose a file to view:</label>
+            <select id="fileChosen" class="btn btn-outline-dark">
+                <option selected disabled hidden></option>
+            </select>
+        </div>
+        <div class="verticalScroll">
+            <table id="pathDataFromFile" class="table table-bordered">
+                <tr>
+                    <td><i>No file selected</i></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <hr>
+    <div id="createGPXPanel">
+        <h4>Create new GPX file</h4>
+        <form ref='createForm'
+            id='createForm'
+            action='/createNewGPX'
+            method='post'
+            encType="multipart/form-data">
+            <div class="form-row">
+                <div class="col">
+                    <input id="newFileName" name="filename" type="text" class="form-control" placeholder="Filename" required>
+                    <small class="form-text text-muted">
+                        Must have a .gpx extension
+                    </small>
+                </div>
+                <div class="col">
+                    <input id="creator" name="creator" type="text" class="form-control" placeholder="Creator" required>
+                </div>
+            </div>
+            <div>
+                <input type="submit" class="btn btn-outline-dark form-control extraButton" value="Create GPX">
+            </div>
+        </form>
+    </div>
+    <hr>
+    <div id="addRoutePanel">
+        <h4>Add Route to GPX file</h4>
+        <form ref='addForm'
+            id='addForm'
+            action='/addRoute'
+            method='post'
+            encType="multipart/form-data">
+            <div class="form-group selectFile">
+                <label for="fileChosen2">Choose a file to add a route to:</label>
+                <select id="fileChosen2" class="btn btn-outline-dark" required>
+                    <option selected disabled hidden></option>
+                </select>
+            </div>
+            <div class="form-row align-items-center firstRowAddRoute">
+                <div class="col">
+                    <input id="newRouteName" name="newRouteName" type="text" class="form-control" placeholder="Route name">
+                </div>
+                <div class="col">
+                    <input id="newRouteNumPoints" name="newRouteNumPoints" type="number" class="form-control" placeholder="How many route points do you want to add?" value="0" min="0">
+                </div>
+            </div>
+            <div>
+                <input  id="addRouteButton" type="submit" class="btn btn-outline-dark form-control extraButton" value="Add route">
+            </div>
+        </form>
+    </div>
+    <hr>
+    <div id="findPathBetweenPanel">
+        <h4>Find paths between two points</h4>
+        <form ref='findPathBetweenForm'
+            id='findPathBetweenForm'
+            action='/findPathsBetween'
+            method='post'
+            encType="multipart/form-data">
+            <div class="form-row">
+                <div class="col-auto">
+                    <input type="text" readonly class="form-control-plaintext" value="Start point">
+                </div>
+                <div class="col">
+                    <input name="firstPointLat" id="firstPointLat" type="text" class="form-control" placeholder="Latitude" required>
+                    <div class="invalid-feedback">
+                        Must be entered.
+                    </div>
+                </div>
+                <div class="col">
+                    <input name="firstPointLon" id="firstPointLon" type="text" class="form-control" placeholder="Longitude" required>
+                    <div class="invalid-feedback">
+                        Must be entered.
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-auto">
+                    <input type="text" readonly class="form-control-plaintext" value="End point">
+                </div>
+                <div class="col">
+                    <input name="secondPointLat" id="secondPointLat" type="text" class="form-control" placeholder="Latitude" required>
+                    <div class="invalid-feedback">
+                        Must be entered.
+                    </div>
+                </div>
+                <div class="col">
+                    <input name="secondPointLon" id="secondPointLon" type="text" class="form-control" placeholder="Longitude" required>
+                    <div class="invalid-feedback">
+                        Must be entered.
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-auto">
+                    <input type="text" readonly class="form-control-plaintext" value="Comparison accuracy">
+                </div>
+                <div class="col">
+                    <input name="deltaVal" id="deltaVal" type="text" class="form-control" placeholder="Accuracy" required>
+                    <small class="form-text text-muted">
+                        Must be in metres
+                    </small>
+                    <div class="invalid-feedback">
+                        Must be entered.
+                    </div>
+                </div>
+            </div>
+            <div>
+                <input type="submit" class="btn btn-outline-dark form-control extraButton" value="Find path">
+            </div>
+        </form>
+        <div id="pathsFound" hidden class="table-responsive">
+            <table id="pathsFoundTable" class="table table-bordered">
+
+            </table>
+        </div>
+    </div>
+    <hr>
+    <div id="findPathLengthPanel">
+        <h4>Find a path with a specific length</h4>
+        <form ref='findPathLengthForm'
+            id='findPathLengthForm'
+            action='/findPathLength'
+            method='post'
+            encType="multipart/form-data">
+            <div class="form-row">
+                <div class="col">
+                    <input id="pathLengthToFind" name="pathLengthToFind" type="text" class="form-control" placeholder="Length" required>
+                    <small class="form-text text-muted">
+                        Must be in metres
+                    </small>
+                </div>
+            </div>
+            <div>
+                <input id="findPathLengthButton" type="submit" class="btn btn-outline-dark form-control extraButton" value="Find paths with specified length">
+            </div>
+        </form>
+        <div id="numWithSameLength" class="alert alert-dark" role="alert" hidden>
+
+        </div>
+    </div>
+    <hr>
+    <h2>GPX Database Functionality</h2>
+    <hr>
+    <div id="databaseFunctionality">
+        <h4>Log In to Database</h4>
+        <form ref='loginDatabase'
+            id='loginDatabase'
+            action='/loginToDatabase'
+            method='post'
+            encType="multipart/form-data">
+            <div id="loginPart" class="form-row">
+                <div class="col">
+                    <input id="dbUsername" name="dbUsername" type="text" class="form-control" placeholder="Username">
+                </div>
+                <div class="col">
+                    <input id="dbPassword" name="dbPassword" type="password" class="form-control" placeholder="Password">
+                </div>
+                <div class="col">
+                    <input id="dbName" name="dbName" type="text" class="form-control" placeholder="Database Name">
+                </div>
+            </div>
+            <div>
+                <input id="loginButton" type="submit" class="btn btn-outline-dark form-control extraButton" value="Login">
+            </div>
+        </form>
+    </div>
+    <div id="otherDBFunctionality">
+        <button id="storeFilesButton" type="button" class="btn btn-outline-dark btn-block" disabled>
+            Store All Files
+        </button>
+        <button id="clearAllButton" type="button" class="btn btn-outline-dark btn-block" disabled>
+            Clear All Data
+        </button>
+        <button id="displayStatusButton" type="button" class="btn btn-outline-dark btn-block" disabled>
+            Display DB Status
+        </button>
+        <form ref='executeQueries'
+        id='executeQueries'
+        action='/executeQuery'
+        method='post'
+        encType="multipart/form-data">
+            <div id="queryRunner" class="form-row">
+                <label for="querySelector" class="col-auto">Execute query: </label>
+                <select class="btn btn-outline-dark col" id="querySelector" disabled>
+                    <option selected disabled hidden></option>
+                    <option>Display all routes</option>
+                    <option>Display all routes from specific file</option>
+                    <option>Display all points from a route</option>
+                    <option>Display all points from specific file</option>
+                    <option>Display shortest/longest routes from specific file</option>
+                </select>
+            </div>
+            <div id="fileChosen3" class="form-group selectFile" hidden>
+                <label for="filesInDB">Choose a file in the database:</label>
+                <select id="filesInDB" class="btn btn-outline-dark">
+                    <option selected disabled hidden></option>
+                </select>
+            </div>
+            <div id="routeChosen" class="form-group selectFile" hidden>
+                <label for="routesInDB">Choose a route ID (check route ID's using the first query):</label>
+                <select id="routesInDB" class="btn btn-outline-dark">
+                    <option selected disabled hidden></option>
+                </select>
+            </div>
+            <div id="numRecordsToShow" class="form-group" hidden>
+                <label for="numRoutesToShow">How many records do you want to see?</label>
+                <input id="numRoutesToShow" type="number" min="1" value="1">
+            </div>
+            <div id="shortOrLongRadio" hidden>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" value="ASC" name="shortOrLong" id="shortest">
+                    <label class="form-check-label" for="shortest">Show the shortest</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" value="DESC" name="shortOrLong" id="longest">
+                    <label class="form-check-label" for="longest">Show the longest</label>
+                </div>
+            </div>
+            <div id="sortByRadio" hidden>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" value="route_name" name="sortOptions" id="sortByName">
+                    <label class="form-check-label" for="sortByName">Sort by route name</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" value="route_len" name="sortOptions" id="sortByLength">
+                    <label class="form-check-label" for="sortByLength">Sort by route length</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" value="ASC" name="sortOrder" id="sortAsc">
+                    <label class="form-check-label" for="sortAsc">Ascending order</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" value="DESC" name="sortOrder" id="sortDesc">
+                    <label class="form-check-label" for="sortDesc">Descending order</label>
+                </div>
+            </div>
+            <div>
+                <input id="executeButton" type="submit" class="btn btn-outline-dark form-control extraButton" value="Execute" hidden>
+            </div>
+        </form>
+        <div id="queryResultsSection" class="table-responsive">
+            <div class="verticalScroll">
+                <table id="queryResultsTable" class="table table-bordered">
+
+                </table>
+            </div>
+        </div>
+    </div>
+    <p></p>
+    
+    <script src="/index.js"></script>
+</body>
+</html>
