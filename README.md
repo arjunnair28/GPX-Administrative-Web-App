@@ -4,6 +4,8 @@
 ![Second image of landing page](./images/landing2.png)
 ![Third image of landing page](./images/landing3.png)
 
+---
+
 ## Main Functionality
 
 - Links in the _File Log_ panel can be clicked to download the file
