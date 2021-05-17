@@ -6,6 +6,16 @@
 
 ---
 
+## Usage
+
+Ensure that node.js is installed
+
+- Run `npm install` in the root directory to install necessary modules
+- `cd` into _parser_ and run `make`, then run `cd ..`
+- Run `npm run dev [portNumber]` where portNumber should be replaced accordingly
+
+---
+
 ## Main Functionality
 
 - Links in the _File Log_ panel can be clicked to download the file
